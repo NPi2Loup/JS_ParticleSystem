@@ -31,6 +31,10 @@ export class PhysicsSettings extends SettingsBase {
             .setExportable(true)
             .setName("Collisions").setDescription("Enable particle collision")
             .setAffects(ComponentType.backend),
+        enableCollisionFusion: Property.bool("collisionFusion", false)
+            .setExportable(true)
+            .setName("Collisions merge").setDescription("Enable particle merge on collision")
+            .setAffects(ComponentType.backend),
         collisionSize: Property.float("collision_size", 1)
             .setExportable(true)
             .setName("Particle collision size").setDescription("Sets particle collider size in pixels")
@@ -55,7 +59,7 @@ export class PhysicsSettings extends SettingsBase {
     }
 
     static PropertiesDependencies = new Map([
-        [this.Properties.enableCollision, [this.Properties.collisionSize, this.Properties.collisionRestitution]],
+        [this.Properties.enableCollision, [this.Properties.enableCollisionFusion, this.Properties.collisionSize, this.Properties.collisionRestitution]],
         [this.Properties.gravity, [this.ReadOnlyProperties.particleGravity]],
         [this.Properties.particleMassFactor, [this.ReadOnlyProperties.particleMass]],
     ]);
@@ -67,6 +71,7 @@ export class PhysicsSettings extends SettingsBase {
     get resistance() {return this.config.resistance;}
     get gravity() {return this.config.gravity;}
     get enableCollision() {return this.config.enableCollision;}
+    get enableCollisionFusion() {return this.config.enableCollisionFusion;}
     get collisionSize() {return this.config.collisionSize;}
     get collisionRestitution() {return this.config.collisionRestitution;}
     get minInteractionDistance() {return this.config.minInteractionDistance;}

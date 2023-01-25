@@ -128,10 +128,12 @@ export class PhysicsEngine {
 
     _processCollisions(leaf) {
         const nextVelocity = new Array(leaf.length);
+        const nextMass = new Array(leaf.length);
         let hasCollision = false;
 
         for (let i = 0; i < leaf.length; i++) {
             const p1 = leaf.data[i];
+            nextMass[i] = p1.mass;
             let nextVelX = p1.velX,
                 nextVelY = p1.velY;
 
@@ -139,26 +141,34 @@ export class PhysicsEngine {
                 if (i === j) {
                     continue;
                 }
-
                 const p2 = leaf.data[j];
+                if (p2.mass === 0 || p1.mass === 0) {
+                	continue;
+            	}
                 const dx = p1.x - p2.x,
                     dy = p1.y - p2.y;
                 const distSquare = dx * dx + dy * dy;
 
-                if (distSquare < this.settings.physics.collisionSizeSq) {
+                if (distSquare < this.settings.physics.collisionSizeSq*(1+Math.log10(p1.mass))) {
                     const massFactor = 2 * p2.mass / (p1.mass + p2.mass);
                     const dot = massFactor * ((nextVelX - p2.velX) * dx + (nextVelY - p2.velY) * dy);
                     nextVelX -= dot / distSquare * dx;
-                    nextVelY -= dot / distSquare * dy;
-
+                    nextVelY -= dot / distSquare * dy;					
+					
                     hasCollision = true;
+                    if (this.settings.physics.enableCollisionFusion) {
+		                nextVelX = (p1.velX*p1.mass + p2.velX*p2.mass)/(p1.mass + p2.mass);
+						nextVelY = (p1.velY*p1.mass + p2.velY*p2.mass)/(p1.mass + p2.mass);
+		                nextMass[i] = ((p1.mass==p2.mass && i<j) || p1.mass > p2.mass)?(p1.mass + p2.mass):0;
+		                nextMass[j] = nextMass[i]==0?(p1.mass + p2.mass):0;		                                
+		            }            
                 }
             }
 
             if (hasCollision) {
                 nextVelocity[i] = [nextVelX * this.settings.physics.collisionRestitution, nextVelY * this.settings.physics.collisionRestitution];
             } else {
-                nextVelocity[i] = [nextVelX, nextVelY];
+                nextVelocity[i] = [nextVelX, nextVelY];                
             }
         }
 
@@ -173,6 +183,7 @@ export class PhysicsEngine {
 
             p.velX = nextVelX;
             p.velY = nextVelY;
+            p.mass = nextMass[i];
         }
     }
 

@@ -56,6 +56,7 @@ export class Webgl2Renderer extends RendererBase {
         this._velocityBufferData = new Float32Array(this.settings.physics.particleCount * 2);
         this._massBufferData = new Float32Array(this.settings.physics.particleCount);
         this._maxSpeed = this.settings.physics.gravity / 100;
+		this._maxMass = 1;
 
         this.initWebgl();
         if (this.settings.common.debug) {
@@ -136,6 +137,7 @@ export class Webgl2Renderer extends RendererBase {
     reset() {
         super.reset();
         this._maxSpeed = this.settings.physics.gravity / 100;
+        this._maxMass = 1;
     }
 
     clear() {
@@ -177,11 +179,22 @@ export class Webgl2Renderer extends RendererBase {
             this._velocityBufferData[i * 2] = particle.velX;
             this._velocityBufferData[i * 2 + 1] = particle.velY;
             this._massBufferData[i] = particle.mass;
-
+			if (Number.isFinite(particle.mass) && this._maxMass < particle.mass) {
+                this._maxMass = particle.mass;
+            }
             const speed = Math.max(Math.abs(particle.velX), Math.abs(particle.velY));
             if (Number.isFinite(speed) && this._maxSpeed < speed) {
                 this._maxSpeed = speed;
             }
+            
+            if(particle.mass ==0) {
+            	this._positionBufferData[i * 2] = 0;
+	            this._positionBufferData[i * 2 + 1] = 0;
+	
+	            this._velocityBufferData[i * 2] = 0;
+	            this._velocityBufferData[i * 2 + 1] = 0;
+            }
+            
         }
 
         const particleScale = this.settings.render.fixedParticleSize ?
@@ -191,6 +204,7 @@ export class Webgl2Renderer extends RendererBase {
             {
                 program: "render", uniforms: [
                     {name: "scale", values: [this.scale]},
+                    {name: "max_mass", values: [this.settings.physics.particleMass + 1]},
                     {name: "max_speed", values: [this._maxSpeed]},
                     {name: "offset", values: [this.xOffset, this.yOffset]},
                     {name: "particle_scale", values: [particleScale]}
