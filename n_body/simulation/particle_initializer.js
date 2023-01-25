@@ -52,6 +52,10 @@ export class Particle_initializer {
                 this._swirlInitializer(particles, settings);
                 break;
 
+			case ParticleInitType.diskrotation:
+                this._diskrotationInitializer(particles, settings);
+                break;
+                
             case ParticleInitType.circle:
             default:
                 this._circleInitializer(particles, settings);
@@ -147,6 +151,24 @@ export class Particle_initializer {
             }
         });
     }
+    
+    static _diskrotationInitializer(particles, settings) {
+        const {worldWidth, worldHeight} = settings.world;
+        const {gravity} = settings.physics;
+
+        const radius = Math.min(worldWidth, worldHeight) / 4;
+        const wiggle = radius * 1.9;
+        const maxRadius = radius + wiggle / 2;
+
+        const velocityMul = Math.sqrt(gravity) / maxRadius;
+        this._circleCenteredInitializer(particles, settings, radius, wiggle, {
+            transformer: (p, angle, r) => {
+                p.velX = Math.cos(angle - Math.PI / 2) * r * velocityMul;
+                p.velY = Math.sin(angle - Math.PI / 2) * r * velocityMul;
+            }
+        });
+    }
+    
 
     /**
      * @param {Particle[]} particles
@@ -197,6 +219,9 @@ export class Particle_initializer {
 
         let i = offset;
         for (let r = minRadius; r < maxRadius; r += step) {
+            if(i>=particles.length) {
+            	break;
+            }
             let segmentCount;
             if (r + step < maxRadius) {
                 segmentCount = 1 + Math.floor(PI_2 * r / density);
