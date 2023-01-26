@@ -43,6 +43,9 @@ export class PhysicsEngine {
 
         this._calculateTree(tree);
         for (let i = 0; i < particles.length; i++) {
+        	if(particles[i].mass == 0) {
+        		continue;
+        	}
             this._physicsStep(particles[i]);
         }
 
@@ -149,7 +152,7 @@ export class PhysicsEngine {
                     dy = p1.y - p2.y;
                 const distSquare = dx * dx + dy * dy;
 
-                if (distSquare < this.settings.physics.collisionSizeSq*(1+Math.log10(p1.mass))) {
+                if (distSquare < this.settings.physics.collisionSizeSq*(1+p1.mass/this.settings.physics.particleMaxMass)) {
                     const massFactor = 2 * p2.mass / (p1.mass + p2.mass);
                     const dot = massFactor * ((nextVelX - p2.velX) * dx + (nextVelY - p2.velY) * dy);
                     nextVelX -= dot / distSquare * dx;
@@ -173,7 +176,13 @@ export class PhysicsEngine {
         }
 
         for (let i = 0; i < leaf.length; i++) {
-            const p = leaf.data[i];
+            const p = leaf.data[i];            
+            p.mass = nextMass[i];
+            if(p.mass === 0) {
+            	p.velX = 0;
+            	p.velY = 0;
+            	continue;
+            }
             const [nextVelX, nextVelY] = nextVelocity[i];
 
             if (this.settings.common.debugForce) {
@@ -182,9 +191,7 @@ export class PhysicsEngine {
             }
 
             p.velX = nextVelX;
-            p.velY = nextVelY;
-            p.mass = nextMass[i];
-        }
+            p.velY = nextVelY;        }
     }
 
     /**

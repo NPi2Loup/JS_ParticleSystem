@@ -55,13 +55,15 @@ export class PhysicsSettings extends SettingsBase {
     static ReadOnlyProperties = {
         particleGravity: ReadOnlyProperty.float().setName("Particle Gravity")
             .setFormatter(value => value.toExponential(2)),
-        particleMass: ReadOnlyProperty.bool().setName("Max particle mass")
+        particleMass: ReadOnlyProperty.bool().setName("Initial particle mass"),
+        particleMaxMass: ReadOnlyProperty.bool().setName("Max particle mass")
     }
 
     static PropertiesDependencies = new Map([
         [this.Properties.enableCollision, [this.Properties.enableCollisionFusion, this.Properties.collisionSize, this.Properties.collisionRestitution]],
         [this.Properties.gravity, [this.ReadOnlyProperties.particleGravity]],
-        [this.Properties.particleMassFactor, [this.ReadOnlyProperties.particleMass]],
+        [this.Properties.enableCollisionFusion, [this.ReadOnlyProperties.particleMaxMass]],
+        [this.Properties.particleMassFactor, [this.ReadOnlyProperties.particleMass, this.ReadOnlyProperties.particleMaxMass]],
     ]);
 
 
@@ -77,7 +79,8 @@ export class PhysicsSettings extends SettingsBase {
     get minInteractionDistance() {return this.config.minInteractionDistance;}
 
     particleGravity;
-    particleMass = 0;
+    particleMass = 1;
+    particleMaxMass = 1;
     massDistribution = [];
     minInteractionDistanceSq;
     collisionSizeSq;
@@ -92,6 +95,7 @@ export class PhysicsSettings extends SettingsBase {
         let totalMass = this.particleCount;
         if (this.particleMassFactor > 0) {
             this.particleMass = Math.pow(2, this.particleMassFactor);
+            this.particleMaxMass = this.particleMass;
             this.massDistribution = [
                 [Math.floor(1 / 0.001), this.particleMass],
                 [Math.floor(1 / 0.005), this.particleMass / 3],
@@ -108,5 +112,9 @@ export class PhysicsSettings extends SettingsBase {
         this.particleGravity = this.gravity / totalMass;
         this.minInteractionDistanceSq = Math.pow(this.minInteractionDistance, 2);
         this.collisionSizeSq = Math.pow(this.collisionSize, 2);
+        
+        if(this.enableCollisionFusion) {
+        	this.particleMaxMass = Math.floor(totalMass);
+        }
     }
 }
