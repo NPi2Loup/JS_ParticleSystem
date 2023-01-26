@@ -71,7 +71,7 @@ export class Webgl2Renderer extends RendererBase {
             program: "render",
             uniforms: [
                 {name: "point_size", values: [this.dpr]},
-                {name: "max_mass", values: [this.settings.physics.particleMass + 1]},
+                {name: "max_mass", values: [this.settings.physics.particleMaxMass]},
                 {name: "max_speed", values: [this._maxSpeed]},
                 {name: "scale", values: [this.scale]},
                 {name: "offset", values: [this.xOffset, this.yOffset]},
@@ -122,7 +122,7 @@ export class Webgl2Renderer extends RendererBase {
         WebglUtils.loadDataFromConfig(this.gl, this._stateConfig, [{
             program: "render",
             uniforms: [
-                {name: "max_mass", values: [this.settings.physics.particleMass + 1]}
+                {name: "max_mass", values: [this.settings.physics.particleMaxMass]}
             ]
         }]);
 
@@ -179,9 +179,7 @@ export class Webgl2Renderer extends RendererBase {
             this._velocityBufferData[i * 2] = particle.velX;
             this._velocityBufferData[i * 2 + 1] = particle.velY;
             this._massBufferData[i] = particle.mass;
-			if (Number.isFinite(particle.mass) && this._maxMass < particle.mass) {
-                this._maxMass = particle.mass;
-            }
+			
             const speed = Math.max(Math.abs(particle.velX), Math.abs(particle.velY));
             if (Number.isFinite(speed) && this._maxSpeed < speed) {
                 this._maxSpeed = speed;
@@ -204,7 +202,7 @@ export class Webgl2Renderer extends RendererBase {
             {
                 program: "render", uniforms: [
                     {name: "scale", values: [this.scale]},
-                    {name: "max_mass", values: [this.settings.physics.particleMass + 1]},
+                    {name: "max_mass", values: [this.settings.physics.particleMaxMass]},
                     {name: "max_speed", values: [this._maxSpeed]},
                     {name: "offset", values: [this.xOffset, this.yOffset]},
                     {name: "particle_scale", values: [particleScale]}
