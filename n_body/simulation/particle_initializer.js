@@ -154,19 +154,34 @@ export class Particle_initializer {
     
     static _diskrotationInitializer(particles, settings) {
         const {worldWidth, worldHeight} = settings.world;
+        const centerX = worldWidth / 2;
+        const centerY = worldHeight / 2;
         const {gravity} = settings.physics;
 
         const radius = Math.min(worldWidth, worldHeight) / 4;
         const wiggle = radius * 1.9;
         const maxRadius = radius + wiggle / 2;
 
-        const velocityMul = Math.sqrt(gravity) / maxRadius;
-        this._circleCenteredInitializer(particles, settings, radius, wiggle, {
-            transformer: (p, angle, r) => {
-                p.velX = Math.cos(angle - Math.PI / 2) * r * velocityMul;
-                p.velY = Math.sin(angle - Math.PI / 2) * r * velocityMul;
-            }
-        });
+        const velocityMul = Math.sqrt(gravity) / radius;
+        
+        if (settings.physics.enableNegativeMass) {
+            this._circleCenteredInitializer(particles, settings, radius, wiggle, {
+	            transformer: (p, angle, r) => {
+	                p.velX = Math.cos(angle - Math.PI / 2) * Math.min(r, r) * velocityMul;
+	                p.velY = Math.sin(angle - Math.PI / 2) * Math.min(r, r) * velocityMul;
+	                if(r > maxRadius * (1.0-settings.physics.negativeParticleRatio)) {
+                    	p.mass = - p.mass;
+                    }
+	            }
+	        });	        
+        } else {
+        	 this._circleCenteredInitializer(particles, settings, radius, wiggle, {
+	            transformer: (p, angle, r) => {
+	                p.velX = Math.cos(angle - Math.PI / 2) * r * velocityMul;
+	                p.velY = Math.sin(angle - Math.PI / 2) * r * velocityMul;
+	            }
+	        });
+        }
     }
     
 
@@ -254,9 +269,9 @@ export class Particle_initializer {
      */
     static _circleCenteredInitializer(particles, settings, radius, wiggle, {transformer} = {}) {
         const {worldWidth, worldHeight} = settings.world;
-        const {particleCount} = settings.physics;
         const centerX = worldWidth / 2,
             centerY = worldHeight / 2;
+        const {particleCount} = settings.physics;
 
         return this._circleInitializerBase(particles, {
             offset: 0,
@@ -281,6 +296,10 @@ export class Particle_initializer {
         for (let i = 0; i < particleCount; i++) {
             particles[i].x = Math.random() * worldWidth;
             particles[i].y = Math.random() * worldHeight
+            
+            if (settings.physics.enableNegativeMass && i<particleCount*settings.physics.negativeParticleRatio) {
+               particles[i].mass = - particles[i].mass;
+            }             
         }
     }
 
@@ -301,6 +320,10 @@ export class Particle_initializer {
             const angle = Math.random() * Math.PI * 2;
             particles[i].velX = Math.cos(angle) * initialVelocity * particles[i].mass;
             particles[i].velY = Math.sin(angle) * initialVelocity * particles[i].mass;
+            
+            if (settings.physics.enableNegativeMass && i<particleCount*settings.physics.negativeParticleRatio) {
+               particles[i].mass = - particles[i].mass;
+            } 
         }
     }
 

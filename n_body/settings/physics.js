@@ -17,6 +17,17 @@ export class PhysicsSettings extends SettingsBase {
             .setBreaks(ComponentType.backend, ComponentType.particles)
             .setAffects(ComponentType.renderer)
             .setConstraints(0, 24),
+        enableNegativeMass: Property.bool("negativeMass", false)
+            .setExportable(true)
+            .setName("Negative Mass").setDescription("Enable particles of negative mass")
+            .setAffects(ComponentType.backend),
+        negativeParticleRatio: Property.float("negativeMassRatio", 0.7)
+            .setExportable(true)
+            .setName("negativeParticleRatio").setDescription("Ratio of negative particles")
+            .setAffects(ComponentType.backend)
+            .setConstraints(1e-6, 1),
+        //To test : negativeGravity; negToPosGravity    
+           
         resistance: Property.float("resistance", 1)
             .setExportable(true)
             .setName("Resistance").setDescription("Resistance of environment, 1 - means no resistance")
@@ -64,11 +75,14 @@ export class PhysicsSettings extends SettingsBase {
         [this.Properties.gravity, [this.ReadOnlyProperties.particleGravity]],
         [this.Properties.enableCollisionFusion, [this.ReadOnlyProperties.particleMaxMass]],
         [this.Properties.particleMassFactor, [this.ReadOnlyProperties.particleMass, this.ReadOnlyProperties.particleMaxMass]],
+        [this.Properties.enableNegativeMass, [this.Properties.negativeParticleRatio]],
     ]);
 
 
     get particleInitType() {return this.config.particleInitType;}
     get particleCount() {return this.config.particleCount;}
+    get enableNegativeMass() {return this.config.enableNegativeMass;}
+    get negativeParticleRatio() {return this.config.negativeParticleRatio;}
     get particleMassFactor() {return this.config.particleMassFactor;}
     get resistance() {return this.config.resistance;}
     get gravity() {return this.config.gravity;}

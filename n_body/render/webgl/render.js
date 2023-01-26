@@ -185,7 +185,7 @@ export class Webgl2Renderer extends RendererBase {
                 this._maxSpeed = speed;
             }
             
-            if(particle.mass ==0) {
+            if(particle.mass == 0) {
             	this._positionBufferData[i * 2] = 0;
 	            this._positionBufferData[i * 2 + 1] = 0;
 	

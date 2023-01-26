@@ -145,14 +145,14 @@ export class PhysicsEngine {
                     continue;
                 }
                 const p2 = leaf.data[j];
-                if (p2.mass === 0 || p1.mass === 0) {
+                if (p2.mass === 0 || p1.mass === 0 || p1.mass*p2.mass<0.0) { //no collision of opposite mass 
                 	continue;
             	}
                 const dx = p1.x - p2.x,
                     dy = p1.y - p2.y;
                 const distSquare = dx * dx + dy * dy;
 
-                if (distSquare < this.settings.physics.collisionSizeSq*(1+p1.mass/this.settings.physics.particleMaxMass)) {
+                if (distSquare < this.settings.physics.collisionSizeSq*(1+Math.abs(p1.mass)/this.settings.physics.particleMaxMass)) {
                     const massFactor = 2 * p2.mass / (p1.mass + p2.mass);
                     const dot = massFactor * ((nextVelX - p2.velX) * dx + (nextVelY - p2.velY) * dy);
                     nextVelX -= dot / distSquare * dx;
@@ -210,7 +210,10 @@ export class PhysicsEngine {
 
         let force = 0;
         if (distSquare >= this.settings.physics.minInteractionDistanceSq) {
-            force = -g / distSquare;
+            force = - Math.abs(g) / distSquare;
+            if(p1.mass * g < 0.0) {
+            	force = - force;
+            }
 
             if (out.velX !== undefined) {
                 out.velX += dx * force;
