@@ -40,7 +40,7 @@ export class RenderSettings extends SettingsBase {
         slowMotionRate: Property.float("slow_motion", 1)
             .setName("Slow motion rate")
             .setAffects(ComponentType.dfri)
-            .setConstraints(1e-2, 1)
+            .setConstraints(1e-6, 1)
     };
 
     static PropertiesDependencies = new Map([
