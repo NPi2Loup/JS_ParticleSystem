@@ -21,16 +21,18 @@ void main() {
     gl_PointSize = point_size;
     //float coef = abs(mass/max_mass);
     //gl_PointSize += 5.0*coef;  
-    float coef = sqrt(mass);
-    gl_PointSize *= coef;
+    float coef = sqrt(abs(mass));
+    gl_PointSize *= sqrt(abs(mass));
     gl_PointSize *= particle_scale;
 
     vec2 translated_velocity = 0.5 + velocity / max_speed * 0.5;
+    float asbolute_velocity = sqrt(translated_velocity.y^2 + translated_velocity.x^2)/max_speed;
+    float coef = abs(mass/max_mass);
     float translated_mass = 0.5+coef*0.5;    
     if(mass>0.0) {    
-    	color = vec3(translated_velocity.x, translated_mass, translated_velocity.y);
+    	color = vec3(asbolute_velocity*0.5, 0.5+asbolute_velocity*0.5, asbolute_velocity*0.5);
     } else if(mass<0.0) {    
-    	color = vec3( translated_mass, translated_velocity.y, translated_velocity.x);
+    	color = vec3(0.5+asbolute_velocity*0.5, asbolute_velocity*0.5, asbolute_velocity*0.5);
     } else {
     	color = vec3(0.0, 0.0, 0.0);
     }
