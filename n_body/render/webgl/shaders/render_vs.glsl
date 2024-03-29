@@ -21,7 +21,6 @@ void main() {
     gl_PointSize = point_size;
     //float coef = abs(mass/max_mass);
     //gl_PointSize += 5.0*coef;  
-    float coef = sqrt(abs(mass));
     gl_PointSize *= sqrt(abs(mass));
     gl_PointSize *= particle_scale;
 
