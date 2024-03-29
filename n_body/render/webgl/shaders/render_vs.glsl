@@ -19,8 +19,9 @@ void main() {
     gl_Position = vec4(translated_pos * vec2(1, -1.0), 0, 1);
 
     gl_PointSize = point_size;
-    float coef = abs(mass/max_mass);
-    gl_PointSize += 5.0*coef;    
+    //float coef = abs(mass/max_mass);
+    //gl_PointSize += 5.0*coef;  
+    gl_PointSize *= sqrt(mass);
     gl_PointSize *= particle_scale;
 
     vec2 translated_velocity = 0.5 + velocity / max_speed * 0.5;
