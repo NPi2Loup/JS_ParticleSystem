@@ -26,7 +26,7 @@ void main() {
     gl_PointSize *= particle_scale;
 
     vec2 translated_velocity = 0.5 + velocity / max_speed * 0.5;
-    float asbolute_velocity = sqrt(translated_velocity.y^2 + translated_velocity.x^2)/max_speed;
+    float asbolute_velocity = sqrt(translated_velocity.y*translated_velocity.y + translated_velocity.x*translated_velocity.x)/max_speed;
     float coef = abs(mass/max_mass);
     float translated_mass = 0.5+coef*0.5;    
     if(mass>0.0) {    
