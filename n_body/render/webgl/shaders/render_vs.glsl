@@ -29,9 +29,9 @@ void main() {
     float coef = abs(mass/max_mass);
     float translated_mass = 0.5+coef*0.5;    
     if(mass>0.0) {    
-    	color = vec3(absolute_velocity*0.5, 0.5+absolute_velocity*0.5, absolute_velocity*0.5);
+    	color = vec3(0.2+absolute_velocity*0.5, 0.5+absolute_velocity*0.5, 0.2+absolute_velocity*0.5);
     } else if(mass<0.0) {    
-    	color = vec3(0.5+absolute_velocity*0.5, absolute_velocity*0.5, absolute_velocity*0.5);
+    	color = vec3(0.5+absolute_velocity*0.5, 0.2+absolute_velocity*0.5, 0.2+absolute_velocity*0.5);
     } else {
     	color = vec3(0.0, 0.0, 0.0);
     }
